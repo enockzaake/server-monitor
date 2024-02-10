@@ -4,10 +4,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"syscall"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+
+	"github.com/enockzaake/server-monitor/simulator"
 )
 
 var upgrader = websocket.Upgrader{
@@ -61,10 +65,34 @@ func handleWebsocket(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	fmt.Println("SERVER MONITOR")
+	simulator.HelloSimulator()
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", getServerAnalytics)
 	router.HandleFunc("/ws", handleWebsocket)
+
+	// CPU Usage
+	cpuStats, err := os.ReadFile("/proc/stat")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("CPU Stats:", string(cpuStats))
+
+	// Memory Usage
+	memInfo, err := os.ReadFile("/proc/meminfo")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Memory Info:", string(memInfo))
+
+	// Disk Usage
+	var stat syscall.Statfs_t
+	err = syscall.Statfs("/", &stat)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Disk Usage:", stat)
+
 	log.Fatal(http.ListenAndServe(":2000", router))
 
 }

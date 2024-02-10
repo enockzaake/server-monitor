@@ -1,20 +1,20 @@
-import TestComponent from "@/components/test"
-
-async function getServerData(){
-  const res = await fetch("http://localhost:2000")
-
-  return res.json()
-}
-
-const page = async () => {
-  const data = await getServerData()
+import ServerList from "@/components/server-list"
+import DashboardStat from "@/components/dashboardStat"
+const Dashboard = () => {
   return (
-    <div className="">
-      <p>FROM SERVER {data}</p>
-      <div>AI Server monitor and analytics</div>
-      <TestComponent/>
-    </div>
+    <div className="flex flex-col items-center justify-center">
+      <div className="flex mt-2 gap-2">
+        <DashboardStat/>
+        <DashboardStat/>
+        <DashboardStat/>
+        <DashboardStat/>
+        <DashboardStat/>
+      </div>
+
+      <ServerList/>
+      </div>
+
   )
 }
 
-export default page
+export default Dashboard
