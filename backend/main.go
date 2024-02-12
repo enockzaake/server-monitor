@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
+
+	// "os"
 	"syscall"
 	"time"
 
@@ -23,6 +24,24 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+func getDiskUsage() []byte {
+		// Disk Usage
+		var stat syscall.Statfs_t
+		err := syscall.Statfs("/", &stat)
+		if err != nil {
+			panic(err)
+		}
+
+		jsonData,err := json.Marshal(stat)
+		if err != nil{
+			panic(err)
+		}
+
+		return jsonData
+
+
+}
+
 func getServerAnalytics(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -32,7 +51,6 @@ func getServerAnalytics(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	for {
-		time.Sleep(2 * time.Second)
 		err := conn.WriteMessage(websocket.TextMessage, []byte(time.Now().Format(time.RFC3339)))
 		if err != nil {
 			log.Println("Error wrriting to websocket ", err)
@@ -50,8 +68,8 @@ func handleWebsocket(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	for {
-		time.Sleep(2 * time.Second)
-		err := conn.WriteMessage(websocket.TextMessage, []byte(time.Now().Format(time.RFC3339)))
+		data := getDiskUsage()
+		err := conn.WriteMessage(websocket.TextMessage, data )
 		if err != nil {
 			log.Println("Error writing message to WebSocket:", err)
 			return
@@ -75,27 +93,21 @@ func main() {
 	router.HandleFunc("/", serveHome)
 	router.HandleFunc("/ws", handleWebsocket)
 
+	getDiskUsage()
+
 	// CPU Usage
-	cpuStats, err := os.ReadFile("/proc/stat")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("CPU Stats:", string(cpuStats))
+	// cpuStats, err := os.ReadFile("/proc/stat")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// fmt.Println("CPU Stats:", string(cpuStats))
 
-	// Memory Usage
-	memInfo, err := os.ReadFile("/proc/meminfo")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Memory Info:", string(memInfo))
-
-	// Disk Usage
-	var stat syscall.Statfs_t
-	err = syscall.Statfs("/", &stat)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Disk Usage:", stat)
+	// // Memory Usage
+	// memInfo, err := os.ReadFile("/proc/meminfo")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// fmt.Println("Memory Info:", string(memInfo))
 
 	log.Fatal(http.ListenAndServe(":2000", router))
 
