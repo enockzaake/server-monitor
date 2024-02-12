@@ -1,13 +1,23 @@
-FROM node:20
+FROM node:latest as build
 
 WORKDIR /app
 
-COPY ./package*.json  ./
+COPY package.json package-lock.json ./
+RUN npm install
 
-RUN npm install 
+COPY . ./
+RUN npm run build
 
-COPY . .
+FROM nginx:alpine
 
-EXPOSE 3000
+RUN rm -rf /usr/share/nginx/html/*
 
-CMD [ "npm","run","dev" ]
+# Copy the built React app from the build stage
+COPY --from=build /app/build /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+
+
+
