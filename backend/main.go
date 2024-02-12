@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -38,10 +39,6 @@ func getServerAnalytics(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	// response := "Server up and running"
-
-	// w.Header().Set("Content-Type", "application/json")
-	// json.NewEncoder(w).Encode(response)
 }
 
 func handleWebsocket(w http.ResponseWriter, r *http.Request) {
@@ -63,12 +60,19 @@ func handleWebsocket(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func serveHome(w http.ResponseWriter, r *http.Request) {
+	response := "Server up and running"
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
 func main() {
 	fmt.Println("SERVER MONITOR")
 	simulator.HelloSimulator()
 	router := mux.NewRouter()
 
-	router.HandleFunc("/", getServerAnalytics)
+	router.HandleFunc("/", serveHome)
 	router.HandleFunc("/ws", handleWebsocket)
 
 	// CPU Usage
