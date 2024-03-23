@@ -8,7 +8,7 @@ function MyComponent() {
   const divRef = useRef(null);
   const [textColor, setTextColor] = useState("red");
 
-  const WS_URL = process.env.BASE_WS_URL as string;
+  const WS_URL = (process.env.WEBSOCKET_URL as string) || "ws://localhost:2000";
 
   const handleSocket = useCallback(() => {
     const isBrowser = typeof window !== "undefined";
