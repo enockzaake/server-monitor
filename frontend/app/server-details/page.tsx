@@ -26,8 +26,8 @@ const ServerDetailsPage = () => {
       <div className="flex gap-[3px]">
         {Array(90)
           .fill(1)
-          .map(() => (
-            <div className="bg-green-500 w-2 h-11 rounded-sm "></div>
+          .map((i: number) => (
+            <div key={i} className="bg-green-500 w-2 h-11 rounded-sm "></div>
           ))}
       </div>
     </section>

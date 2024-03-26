@@ -3,21 +3,27 @@ FROM node:latest as build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
+
 RUN npm install
 
-COPY . ./
+COPY . .
+
 RUN npm run build
 
-FROM nginx:alpine
+COPY .next ./.next
 
-RUN rm -rf /usr/share/nginx/html/*
+CMD ["npm","run","dev"]
 
-# Copy the built React app from the build stage
-COPY --from=build /app/build /usr/share/nginx/html
+# FROM nginx:alpine
 
-EXPOSE 80
+# # Remove the default Nginx website
+# RUN rm -rf /usr/share/nginx/html/*
 
-CMD ["nginx", "-g", "daemon off;"]
+# # Copy the built React app from the build stage to Nginx's default public directory
+# COPY --from=build /app/build /usr/share/nginx/html
 
+# # Expose port 3000 to the outside world
+# EXPOSE 3000
 
-
+# # Command to run Nginx in the foreground
+# CMD ["nginx", "-g", "daemon off;"]
